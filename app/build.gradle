@@ -1,0 +1,65 @@
+apply plugin: 'com.android.application'
+
+//darren 测试打印。
+println "Darrentest..."
+
+//测试申明变量，打印。
+def test = 20
+println "Darrentest id= ${test}"
+
+//引用根目录中config.gradle中定义的通用变量。
+def androidId = rootProject.ext.androidId
+def appId = rootProject.ext.appId
+def support = rootProject.ext.dependencies
+def debugUrl = rootProject.ext.releaseUrl
+
+def cpSource = rootProject.ext.cpSource
+def apkName = rootProject.ext.apkName
+def sourceVersion = rootProject.ext.sourceVersion
+
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.1"
+
+    defaultConfig {
+        applicationId appId.app
+        minSdkVersion androidId.minSdkVersion
+        targetSdkVersion androidId.targetSdkVersion
+        versionCode androidId.versionCode
+        versionName androidId.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+
+        debug{
+            buildConfigField "String", "DetailUrl", "\"${debugUrl.detail}\""
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "${cpSource}_${apkName}_${sourceVersion}_${androidId.versionCode}_${variant.buildType.name}.apk"
+                }
+            }
+        }
+
+        release {
+            minifyEnabled false
+            buildConfigField "String", "DetailUrl", "\"${releaseUrl.detail}\""
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    //darren循环将config中定义的support数组添加进来。
+    support.each { k, v -> implementation v }
+
+}

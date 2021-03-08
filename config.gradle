@@ -1,0 +1,101 @@
+import java.text.SimpleDateFormat
+
+/**
+ * DarrenAdd202102080: 添加公有的自定义属性。
+ *
+ * lanxu_oslauncher_v3.4.6_202102220_debug
+ *
+ */
+
+ext {
+
+    cpSource = 'Launxu'
+
+    apkName = 'oslauncher'
+
+    sourceVersion = 'v3.4.6'
+
+    username = "Darren"
+
+    isRelease = false
+
+    buildId = 0
+
+    def verCode = getTime()
+
+    println "Darrentest verCode= ${verCode}"
+
+    androidId = [
+            buildToolsVersion: "30.0.1",
+            compileSdkVersion: 30,
+            buildToolsVersion: "29.0.0",
+            minSdkVersion    : 19,
+            targetSdkVersion : 30,
+            versionCode      : verCode,
+            versionName      : "3.4.0",
+    ]
+
+
+    appId = [
+            app: "com.dar.testgradle"
+    ]
+
+
+    //编译Url
+    debugUrl = [
+            //测试Url
+            "detail": "http....// test debug...."
+    ]
+
+    releaseUrl = [
+            //正式地址Url
+            "detail": "http....// test release...."
+    ]
+
+
+    //抽象通用的引用。
+    dependencies = [
+            implementation: 'androidx.appcompat:appcompat:1.2.0',
+            implementation: 'androidx.constraintlayout:constraintlayout:2.0.4'
+    ]
+
+}
+
+/**
+ * DarrenAdd202102080：自动生成versionCode。
+ *
+ * @return
+ */
+def getTime() {
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+    Date date = new Date(System.currentTimeMillis());
+    String dataStr = simpleDateFormat.format(date).replace(":", "")
+    int curCode = getVersionCode().toInteger()
+    int dataInt = Integer.valueOf(dataStr) * 10 + curCode
+
+    return dataInt
+}
+
+/**
+ * DarrenAdd202103080：版本自动增加。
+ *
+ * 获取当前执行的事件：def runTasks = gradle.startParameter.taskNames ，'assembleRelease' in runTasks
+ *
+ * @return
+ */
+def getVersionCode() {
+    def versionFile = file('gradle.properties')
+    if (versionFile.canRead()) {
+        def Properties versionProps = new Properties()
+        versionProps.load(new FileInputStream(versionFile))
+        def versionCode = versionProps['VERSION_CODE'].toInteger()
+        if(rootProject.ext.isRelease) {
+            versionProps['VERSION_CODE'] = (++versionCode).toString()
+            versionProps.store(versionFile.newWriter(), null)
+        }
+        return versionCode
+    } else {
+        println "Could not read gradle.properties!"
+        throw new GradleException("Could not find version.properties!")
+    }
+}
